@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Finance Advisor Bot</title>
+<style>
+:root{
+  --bg:#f5f7fb;--card:#fff;--text:#182230;--muted:#718096;--line:#e8edf3;
+  --primary:#6d45e8;--primary2:#8b5cf6;--green:#0ca678;--red:#e05252;
+  --shadow:0 10px 30px rgba(35,42,60,.08);--radius:20px;
+}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select{font:inherit} button{cursor:pointer;border:0}
+.app{min-height:100vh}.topbar{height:68px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 5%;position:sticky;top:0;z-index:10}
+.brand{display:flex;align-items:center;gap:11px;font-weight:800}.logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--primary),#b56cff);display:grid;place-items:center;color:#fff;font-size:20px}
+.avatar{width:38px;height:38px;border-radius:50%;background:#e9e4ff;color:#5a36ce;display:grid;place-items:center;font-weight:800}
+.layout{display:grid;grid-template-columns:235px 1fr;max-width:1400px;margin:auto}
+.sidebar{padding:28px 16px;min-height:calc(100vh - 68px);border-right:1px solid var(--line);background:#fff}
+.nav{display:grid;gap:7px}.nav button{background:transparent;color:#667085;text-align:left;padding:13px 14px;border-radius:12px;display:flex;gap:11px;align-items:center}.nav button.active,.nav button:hover{background:#f0ebff;color:#603bd4;font-weight:700}
+.main{padding:30px;max-width:1150px;width:100%;margin:auto}.view{display:none}.view.active{display:block}
+.hero{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:24px}.hero h1{margin:0 0 7px;font-size:28px}.hero p{margin:0;color:var(--muted)}
+.date{background:#fff;border:1px solid var(--line);padding:10px 14px;border-radius:12px;color:#667085}
+.grid{display:grid;gap:18px}.stats{grid-template-columns:repeat(4,1fr)}.two{grid-template-columns:1.35fr .85fr}.three{grid-template-columns:repeat(3,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.stat .label{font-size:13px;color:var(--muted)}.stat .value{font-size:26px;font-weight:800;margin:8px 0}.trend{font-size:12px;color:var(--green)}.trend.red{color:var(--red)}
+.card h3{margin:0 0 17px}.row{display:flex;justify-content:space-between;align-items:center;gap:12px}.small{font-size:13px;color:var(--muted)}
+.chart{height:190px;display:flex;align-items:flex-end;gap:10px;padding:10px 5px 0}.barwrap{height:100%;flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px}.bar{width:70%;max-width:35px;border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,var(--primary2),var(--primary));min-height:12px}.bar.green{background:linear-gradient(180deg,#20c997,#099268)}.barlabel{font-size:11px;color:var(--muted)}
+.progress{height:9px;background:#edf0f5;border-radius:20px;overflow:hidden}.progress span{display:block;height:100%;background:linear-gradient(90deg,var(--primary),#a56bff);border-radius:20px}
+.goal{display:grid;gap:9px}.goal+.goal{margin-top:18px}.amount{font-weight:800}.tag{padding:5px 9px;border-radius:999px;background:#f0ebff;color:#613ed1;font-size:11px;font-weight:700}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:13px 8px;border-bottom:1px solid var(--line);font-size:13px}th{color:var(--muted);font-weight:600}
+.pill{display:inline-flex;padding:5px 9px;border-radius:999px;font-size:11px;background:#eaf8f3;color:#087f5b}.pill.red{background:#fff0f0;color:#c92a2a}
+.primary{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;padding:11px 16px;border-radius:12px;font-weight:700}.secondary{background:#f1effd;color:#603bd4;padding:10px 14px;border-radius:11px;font-weight:700}
+.form{display:grid;gap:13px}.form label{font-size:13px;color:#667085;font-weight:600}.form input,.form select{width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;background:#fff;outline:none}.form input:focus,.form select:focus{border-color:#8b6de8}
+.chat{height:480px;display:flex;flex-direction:column}.messages{flex:1;overflow:auto;padding:5px}.bubble{max-width:80%;padding:12px 14px;border-radius:16px;margin:9px 0;font-size:14px;line-height:1.5}.bot{background:#f1effd;color:#3d2b78;border-bottom-left-radius:4px}.user{background:var(--primary);color:#fff;margin-left:auto;border-bottom-right-radius:4px}.chatbox{display:flex;gap:8px;border-top:1px solid var(--line);padding-top:14px}.chatbox input{flex:1;border:1px solid var(--line);border-radius:12px;padding:12px}.quick{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.quick button{background:#f5f2ff;color:#603bd4;border-radius:999px;padding:7px 10px;font-size:11px}
+.tip{padding:15px;border-radius:15px;background:linear-gradient(135deg,#f5f0ff,#fbf9ff);border:1px solid #e6dcff}.tip strong{display:block;margin-bottom:5px}.empty{padding:30px;text-align:center;color:var(--muted)}
+.bottomnav{display:none}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{display:none}.main{padding:18px 14px 85px}.stats{grid-template-columns:repeat(2,1fr)}.two,.three{grid-template-columns:1fr}.bottomnav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);z-index:20}.bottomnav button{background:#fff;padding:9px 2px;color:#8992a3;font-size:10px}.bottomnav button.active{color:#603bd4;font-weight:800}.bottomnav span{display:block;font-size:18px;margin-bottom:2px}.hero{align-items:center}.date{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <div class="brand"><div class="logo">₹</div><span>Personal Finance Advisor</span></div>
+  <div class="row"><span class="small" style="margin-right:10px">Good evening, Kunal</span><div class="avatar">K</div></div>
+</header>
+<div class="layout">
+<aside class="sidebar">
+  <nav class="nav">
+    <button class="active" data-view="dashboard">⌂ <span>Dashboard</span></button>
+    <button data-view="expenses">▣ <span>Expenses</span></button>
+    <button data-view="goals">◎ <span>Goals & Savings</span></button>
+    <button data-view="advisor">✦ <span>AI Advisor</span></button>
+    <button data-view="reports">▤ <span>Reports</span></button>
+  </nav>
+</aside>
+
+<main class="main">
+<section id="dashboard" class="view active">
+ <div class="hero"><div><h1>Financial Overview</h1><p>Track your money and make smarter monthly decisions.</p></div><div class="date">September 2026 ▾</div></div>
+ <div class="grid stats">
+  <div class="card stat"><div class="label">Monthly Income</div><div class="value">₹42,000</div><div class="trend">↑ 5.2% vs last month</div></div>
+  <div class="card stat"><div class="label">Total Expenses</div><div class="value">₹24,680</div><div class="trend red">↑ 3.8% vs last month</div></div>
+  <div class="card stat"><div class="label">Available Balance</div><div class="value">₹17,320</div><div class="trend">41.2% of income saved</div></div>
+  <div class="card stat"><div class="label">Savings Goal</div><div class="value">₹68,400</div><div class="trend">68% completed</div></div>
+ </div>
+ <div class="grid two" style="margin-top:18px">
+  <div class="card"><div class="row"><h3>Monthly spending</h3><span class="small">Last 6 months</span></div><div class="chart">
+   <div class="barwrap"><div class="bar" style="height:54%"></div><span class="barlabel">Apr</span></div>
+   <div class="barwrap"><div class="bar" style="height:65%"></div><span class="barlabel">May</span></div>
+   <div class="barwrap"><div class="bar" style="height:48%"></div><span class="barlabel">Jun</span></div>
+   <div class="barwrap"><div class="bar" style="height:73%"></div><span class="barlabel">Jul</span></div>
+   <div class="barwrap"><div class="bar" style="height:60%"></div><span class="barlabel">Aug</span></div>
+   <div class="barwrap"><div class="bar green" style="height:51%"></div><span class="barlabel">Sep</span></div>
+  </div></div>
+  <div class="card"><h3>AI recommendation</h3><div class="tip"><strong>💡 Dining is above your target</strong><span class="small">You spent ₹4,260 on food this month. Reducing it by 15% could add ₹639 to your savings.</span></div><button class="primary" style="margin-top:15px" onclick="showView('advisor')">Ask AI Advisor</button></div>
+ </div>
+ <div class="grid two" style="margin-top:18px">
+  <div class="card"><div class="row"><h3>Recent transactions</h3><button class="secondary" onclick="showView('expenses')">View all</button></div><div id="recent"></div></div>
+  <div class="card"><h3>Savings goals</h3>
+   <div class="goal"><div class="row"><span>New Laptop</span><span class="amount">₹68,400 / ₹1,00,000</span></div><div class="progress"><span style="width:68%"></span></div><span class="small">Target: Dec 2026</span></div>
+   <div class="goal"><div class="row"><span>Emergency Fund</span><span class="amount">₹24,000 / ₹60,000</span></div><div class="progress"><span style="width:40%"></span></div><span class="small">Target: Mar 2027</span></div>
+  </div>
+ </div>
+</section>
+
+<section id="expenses" class="view">
+ <div class="hero"><div><h1>Expenses</h1><p>Record, categorize and understand your spending.</p></div><button class="primary" onclick="document.getElementById('expenseForm').scrollIntoView()">+ Add expense</button></div>
+ <div class="grid two">
+  <div class="card"><h3>Add expense</h3><form id="expenseForm" class="form">
+   <div><label>Description</label><input id="desc" placeholder="e.g. Grocery shopping" required></div>
+   <div><label>Amount (₹)</label><input id="amount" type="number" min="1" placeholder="500" required></div>
+   <div><label>Category</label><select id="category"><option>Food</option><option>Travel</option><option>Shopping</option><option>Bills</option><option>Education</option><option>Entertainment</option><option>Other</option></select></div>
+   <button class="primary">Save expense</button>
+  </form></div>
+  <div class="card"><h3>Category budget</h3><div class="goal"><div class="row"><span>Food</span><span>₹4,260 / ₹5,000</span></div><div class="progress"><span style="width:85%"></span></div></div><div class="goal"><div class="row"><span>Travel</span><span>₹2,150 / ₹4,000</span></div><div class="progress"><span style="width:54%"></span></div></div><div class="goal"><div class="row"><span>Shopping</span><span>₹3,400 / ₹5,000</span></div><div class="progress"><span style="width:68%"></span></div></div></div>
+ </div>
+ <div class="card" style="margin-top:18px"><div class="row"><h3>Transaction history</h3><span class="tag">September 2026</span></div><div style="overflow:auto"><table><thead><tr><th>Description</th><th>Category</th><th>Date</th><th>Amount</th></tr></thead><tbody id="transactions"></tbody></table></div></div>
+</section>
+
+<section id="goals" class="view">
+ <div class="hero"><div><h1>Goals & Savings</h1><p>Plan purchases and build financial security.</p></div><button class="primary" onclick="addGoal()">+ New goal</button></div>
+ <div class="grid three">
+  <div class="card"><h3>New Laptop</h3><div class="value" style="font-size:28px;font-weight:800">₹68,400</div><p class="small">of ₹1,00,000</p><div class="progress"><span style="width:68%"></span></div><p class="small">₹31,600 remaining · Dec 2026</p></div>
+  <div class="card"><h3>Emergency Fund</h3><div class="value" style="font-size:28px;font-weight:800">₹24,000</div><p class="small">of ₹60,000</p><div class="progress"><span style="width:40%"></span></div><p class="small">₹36,000 remaining · Mar 2027</p></div>
+  <div class="card"><h3>Trip Fund</h3><div class="value" style="font-size:28px;font-weight:800">₹18,500</div><p class="small">of ₹35,000</p><div class="progress"><span style="width:53%"></span></div><p class="small">₹16,500 remaining · Jan 2027</p></div>
+ </div>
+ <div class="card" style="margin-top:18px"><h3>Smart saving plan</h3><div class="tip"><strong>Suggested monthly saving: ₹9,500</strong><span class="small">Based on your current income, expenses and target dates. The prototype uses rule-based recommendations; a production version can connect an AI model and real bank data.</span></div></div>
+</section>
+
+<section id="advisor" class="view">
+ <div class="hero"><div><h1>AI Finance Advisor</h1><p>Ask questions about your budget, expenses and goals.</p></div><span class="tag">● Demo AI</span></div>
+ <div class="grid two">
+  <div class="card chat"><div class="messages" id="messages">
+   <div class="bubble bot">Hi Kunal 👋 I’m your Personal Finance Advisor. I can help you understand your spending, plan savings, or create a monthly budget.</div>
+   <div class="bubble bot">Your current saving rate is about <b>41%</b>. Would you like a budget suggestion or an expense analysis?</div>
+  </div><div class="quick"><button onclick="quickAsk('How can I save more this month?')">Save more</button><button onclick="quickAsk('Analyze my expenses')">Analyze expenses</button><button onclick="quickAsk('Make a monthly budget')">Make budget</button></div><div class="chatbox"><input id="chatInput" placeholder="Ask your finance question..."><button class="primary" onclick="sendChat()">Send</button></div></div>
+  <div class="card"><h3>Advisor snapshot</h3><div class="goal"><div class="row"><span>Needs</span><b>54%</b></div><div class="progress"><span style="width:54%"></span></div></div><div class="goal"><div class="row"><span>Wants</span><b>24%</b></div><div class="progress"><span style="width:24%"></span></div></div><div class="goal"><div class="row"><span>Savings</span><b>22%</b></div><div class="progress"><span style="width:22%"></span></div></div><hr style="border:0;border-top:1px solid var(--line);margin:20px 0"><div class="tip"><strong>Next action</strong><span class="small">Keep at least ₹10,000 as your monthly saving target before increasing discretionary spending.</span></div></div>
+ </div>
+</section>
+
+<section id="reports" class="view">
+ <div class="hero"><div><h1>Reports</h1><p>Simple monthly financial insights.</p></div><button class="secondary" onclick="window.print()">Print report</button></div>
+ <div class="grid three"><div class="card"><span class="small">Income</span><h2>₹42,000</h2><span class="pill">+5.2%</span></div><div class="card"><span class="small">Expenses</span><h2>₹24,680</h2><span class="pill red">+3.8%</span></div><div class="card"><span class="small">Net savings</span><h2>₹17,320</h2><span class="pill">41.2%</span></div></div>
+ <div class="card" style="margin-top:18px"><h3>Monthly insight</h3><p class="small" style="line-height:1.8">Your largest demo category is Food. Travel and shopping remain within the example budgets. If the user reduces food spending by 15% and redirects the difference to the laptop goal, the goal will progress faster.</p></div>
+</section>
+</main></div>
+<nav class="bottomnav">
+ <button class="active" data-view="dashboard"><span>⌂</span>Home</button><button data-view="expenses"><span>▣</span>Expenses</button><button data-view="goals"><span>◎</span>Goals</button><button data-view="advisor"><span>✦</span>Advisor</button><button data-view="reports"><span>▤</span>Reports</button>
+</nav>
+</div>
+<script>
+const data=[
+ {d:"Grocery Store",c:"Food",date:"28 Sep",a:1250},{d:"College Travel",c:"Travel",date:"27 Sep",a:420},
+ {d:"Online Shopping",c:"Shopping",date:"25 Sep",a:1899},{d:"Electricity Bill",c:"Bills",date:"22 Sep",a:1450},
+ {d:"Restaurant",c:"Food",date:"20 Sep",a:760},{d:"Course Material",c:"Education",date:"18 Sep",a:950}
+];
+const money=n=>"₹"+Number(n).toLocaleString("en-IN");
+function render(){
+ document.getElementById("transactions").innerHTML=data.map(x=>`<tr><td>${x.d}</td><td>${x.c}</td><td>${x.date}</td><td><b>${money(x.a)}</b></td></tr>`).join("");
+ document.getElementById("recent").innerHTML=data.slice(0,4).map(x=>`<div class="row" style="padding:11px 0;border-bottom:1px solid var(--line)"><div><b>${x.d}</b><div class="small">${x.c} · ${x.date}</div></div><b>${money(x.a)}</b></div>`).join("");
+}
+render();
+function showView(id){
+ document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));
+ document.querySelectorAll("[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===id));
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>showView(b.dataset.view)));
+document.getElementById("expenseForm").addEventListener("submit",e=>{
+ e.preventDefault(); const d=document.getElementById("desc").value.trim(),a=+document.getElementById("amount").value,c=document.getElementById("category").value;
+ if(!d||!a)return; data.unshift({d,c,date:"Today",a}); render(); e.target.reset(); alert("Expense added successfully."); showView("expenses");
+});
+function addGoal(){alert("Prototype action: New Goal form can be connected here in the next version.");}
+function addMessage(t,who){const m=document.getElementById("messages");m.insertAdjacentHTML("beforeend",`<div class="bubble ${who}">${t}</div>`);m.scrollTop=m.scrollHeight}
+function response(q){
+ q=q.toLowerCase();
+ if(q.includes("save")) return "Try reducing Food spending by about ₹640 this month and transfer that amount to your New Laptop goal. Your current saving rate is already strong.";
+ if(q.includes("expense")) return "Your demo data shows Food, Shopping and Bills as the main spending areas. Food is currently closest to its monthly limit.";
+ if(q.includes("budget")) return "A simple demo budget for ₹42,000 income: ₹22,500 needs, ₹9,500 savings, ₹7,000 wants and ₹3,000 buffer.";
+ return "Based on the demo financial profile, I would first protect your monthly savings target, then review high-frequency discretionary expenses.";
+}
+function sendChat(){const i=document.getElementById("chatInput"),q=i.value.trim();if(!q)return;addMessage(q,"user");i.value="";setTimeout(()=>addMessage(response(q),"bot"),350)}
+function quickAsk(q){document.getElementById("chatInput").value=q;sendChat()}
+document.getElementById("chatInput").addEventListener("keydown",e=>{if(e.key==="Enter")sendChat()});
+</script>
+</body>
+</html>
